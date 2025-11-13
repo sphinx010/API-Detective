@@ -3,7 +3,7 @@
 # 🕵️‍♂️ API Detective: Automated Microservice QA Framework
 
 **API Detective** is an end-to-end API testing framework that orchestrates and validates the communication between multiple microservices.
-It automates Postman collections with Newman, wraps them in PowerShell for smart execution, and runs seamlessly in CI/CD pipelines via GitHub Actions or Jenkins; producing dynamic detective-style HTML reports for every test run.
+It automates Postman collections with Newman, wraps them in PowerShell for sequential and dynamic orchestration, and runs seamlessly in CI/CD pipelines via GitHub Actions or Jenkins; producing dynamic detective-style HTML reports for every test run.
 
 ---
 
@@ -19,9 +19,9 @@ It automates Postman collections with Newman, wraps them in PowerShell for smart
 
 ## ❓❓ Why It Matters
 
-API Detective isn’t just about running tests; it’s about creating *observability* in microservice communication.
-It models how a real QA pipeline should behave: intelligent orchestration, consistent environments, and instant visibility into what’s breaking and why.
-
+API Detective isn't just about running tests; it's about creating observability in microservice communication.
+It models how a real QA pipeline should behave: intelligent orchestration, consistent environments, and instant visibility into what's breaking and why.
+It also provides a robust regression safety net, ensuring service contracts remain intact across deployments.
 ---
 
 ## ⚙️ Quick Start
@@ -59,7 +59,7 @@ It models how a real QA pipeline should behave: intelligent orchestration, consi
 ```
 API-Detective/
 │
-├── collections/                # Postman test suites
+├── collections/                # Core microservice contract test suites
 ├── environments/               # Environment configs
 ├── newman/reports/             # Generated HTML reports
 ├── scripts/run_all_collections.ps1
