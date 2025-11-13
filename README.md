@@ -102,7 +102,7 @@ Ready-to-deploy pipeline script for scheduled or triggered test runs with post-b
 
 ### My observation/reflection
 
-API Detective demonstrates how a **QA engineer can design a full automation ecosystem**  and just test,  but harmonize scripting, CI/CD, and intelligent reporting.
+API Detective demonstrates how a **QA engineer can design a full automation ecosystem**  and not just test, but harmonize scripting, CI/CD, and intelligent reporting.
 It’s the kind of framework that turns manual verification into continuous assurance.
 
 ---
