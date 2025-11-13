@@ -1,47 +1,52 @@
-🕵️‍♂️ API Detective — End-to-End Microservice QA Automation Framework
 
-API Detective is a full-scale QA automation pipeline for API integrated test automation.
-It brings together Postman scripting, Newman CLI, PowerShell automation, CI/CD via GitHub Actions and Jenkins, and dynamic HTML reporting to model how real enterprise teams test and validate microservice integrations.
+---
+# 🕵️‍♂️ API Detective: Automated Microservice QA Framework
 
-The framework acts like a QA brain that connects four independent API services into one orchestrated system, validates their communication logic, catches inconsistencies in real time, and automatically generates detective-style visual and console reports that tell the story of every run.
-
-## 🚀 Features
-
-* **Postman + Newman Integration:** Run Postman collections via Newman CLI for full API automation.
-* **Dynamic PowerShell Runner:** A custom PowerShell script (`scripts/run-collections.ps1`) automates multiple collection runs and report generation.
-* **HTML Extra Reports:** Auto-generated test reports with detailed logs, failures, and request/response breakdowns (`newman/reports/`).
-* **GitHub Actions CI Pipeline:** Executes all test suites on every push or pull request with result logging and artifact uploads (`.github/workflows/ci.yml`).
-* **Jenkins Integration Ready:** Seamless setup for Jenkins pipelines via `jenkins/Jenkinsfile`.
-* **Centralized Environments:** Manage environments in `environments/` for easy switch between staging, integration, and production.
-* **Enhanced Debugging:** Custom console logs and formatted outputs for quick test insights.
+**API Detective** is an end-to-end API testing framework that orchestrates and validates the communication between multiple microservices.
+It automates Postman collections with Newman, wraps them in PowerShell for smart execution, and runs seamlessly in CI/CD pipelines via GitHub Actions or Jenkins; producing dynamic detective-style HTML reports for every test run.
 
 ---
 
-## ⚙️ Setup & Installation
+## 🚀 What It Does
 
-1. **Clone the Repository:**
+* Runs complete **API test suites** across multiple services automatically.
+* Generates rich, **HTML reports** that visualize request/response flows and failures.
+* Integrates directly with **GitHub Actions** and **Jenkins** for continuous QA feedback.
+* Uses **PowerShell automation** to manage multi-collection execution with clean logging.
+* Centralized environment configs for staging, integration, and production.
+
+---
+
+## ❓❓ Why It Matters
+
+API Detective isn’t just about running tests; it’s about creating *observability* in microservice communication.
+It models how a real QA pipeline should behave: intelligent orchestration, consistent environments, and instant visibility into what’s breaking and why.
+
+---
+
+## ⚙️ Quick Start
+
+1. **Clone the repo**
 
    ```bash
    git clone https://github.com/sphinx010/API-Detective.git
-   cd newman-automation-framework
+   cd API-Detective
    ```
 
-2. **Install Dependencies:**
-   Ensure Node.js and Newman are installed:
+2. **Install dependencies**
 
    ```bash
    npm install -g newman newman-reporter-htmlextra
    ```
 
-3. **Run Tests Locally (PowerShell):**
-   Execute the PowerShell script to run all collections and auto-generate reports:
+3. **Run all tests**
 
    ```powershell
-   ./scripts/run-collections.ps1
+   ./scripts/run_all_collections.ps1
    ```
 
-4. **View Reports:**
-   Reports are automatically generated and saved under:
+4. **View results**
+   Open the generated reports in:
 
    ```
    newman/reports/
@@ -49,106 +54,55 @@ The framework acts like a QA brain that connects four independent API services i
 
 ---
 
-## 🧱Project Structure
+## 🧩 Project Overview
 
 ```
-newman-automation-framework/
+API-Detective/
 │
-├── collections/                  # All Postman test collections
-├── environments/                 # Environment files (.postman_environment.json)
-├── newman/reports/               # Auto-generated HTML reports
-├── scripts/run-collections.ps1   # PowerShell automation script
-├── .github/workflows/ci.yml      # GitHub Actions CI configuration
-├── jenkins/Jenkinsfile           # Jenkins pipeline script
-└── README.md                     # You’re here ...
+├── collections/                # Postman test suites
+├── environments/               # Environment configs
+├── newman/reports/             # Generated HTML reports
+├── scripts/run_all_collections.ps1
+├── .github/workflows/ci.yml    # GitHub Actions workflow
+├── jenkins/Jenkinsfile         # Jenkins pipeline config
+└── README.md
 ```
 
-example of a run:
-newman
+---
 
-Notify-Service Tests
+## 🧾 CI/CD Pipeline
 
-→ ping
-  GET https://webhook.site [200 OK, 78.98kB, 6.4s]
+**GitHub Actions:**
+Automatically runs all collections on every push or PR and uploads HTML reports as build artifacts.
 
-→ verify order
-  GET https://webhook.site/{{id_path}} [200 OK, 458B, 4.2s]
-  √  Check order_confirmation status
-  ┌
-  │ '🕵️‍♂️ CASE CLOSED: Order confirmed without a hitch!'
-  │ '✅ The evidence is clear: status = "success"'
-  │ '📦 Package is already en route to alternate dimension... (aka warehouse)'
-  │ '🎯 No bugs detected. Criminals remain unemployed.'
-  └
-
-┌─────────────────────────┬────────────────────┬───────────────────┐
-│                         │           executed │            failed │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│              iterations │                  1 │                 0 │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│                requests │                  2 │                 0 │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│            test-scripts │                  3 │                 0 │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│      prerequest-scripts │                  2 │                 0 │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│              assertions │                  1 │                 0 │
-├─────────────────────────┴────────────────────┴───────────────────┤
-│ total run duration: 11s                                          │
-├──────────────────────────────────────────────────────────────────┤
-│ total data received: 78.19kB (approx)                            │
-├──────────────────────────────────────────────────────────────────┤
-│ average response time: 5.3s [min: 4.2s, max: 6.4s, s.d.: 1098ms] │
-└──────────────────────────────────────────────────────────────────┘
+**Jenkins:**
+Ready-to-deploy pipeline script for scheduled or triggered test runs with post-build reporting.
 
 ---
 
-## 🛠️ CI/CD Integrations
+## 🧰 Tech Stack
 
-### 🔹 GitHub Actions
-
-Automated test execution on every commit or pull request.
-To monitor builds and reports:
-
-* Navigate to the **Actions** tab in your GitHub repo.
-* Select the latest workflow run to view logs and status.
-
-### 🔹 Jenkins
-
-For Jenkins integration, see `jenkins/Jenkinsfile`.
-It defines automated test triggers and post-build HTML report publishing steps.
+| Tool                          | Purpose                                                                   |
+| ----------------------------- | ----------------------------------------------- |
+| **Postman + Newman**  |         API test creation and automation         |
+| **HTML-EXTRA**             |      For reports                                                |
+| **PowerShell**                | Custom orchestration of multiple collections |
+| **newman-reporter-htmlextra** | Visual, rich HTML reporting              |
+| **GitHub Actions / Jenkins**  | Continuous integration and execution  |
 
 ---
 
-## 🧾 Reports & Logs
-
-* All test executions generate HTML Extra reports with:
-
-  * Detailed request-response views
-  * Assertion summaries
-  * Failure breakdowns
-  * Visual timeline of requests
-* Additional console logs (debugging, validation, and request metadata) enhance real-time traceability.
-
----
-
-## 🧠 Tech Stack
-
-| Tool                              | Purpose                                                        |
-| -------------------------| ----------------------------------------------- |
-| **Postman**                | API collection creation                                 |
-| **Newman**               | Command-line test execution                      |
-| **newman-reporter-htmlextra** | Rich HTML reports                    |
-| **PowerShell**           | Batch automation for multi-collection runs |  ← automation logic
-| **GitHub Actions**    | Continuous Integration pipeline                  |
-| **Jenkins**                  | Continuous Deployment integration           | 
-
----
-
-## 👨‍💻 Author
+## 👤 Author
 
 **Ayooluwa Paul Obembe**
-QA Automation Engineer 
-🚀 *Focused on creating robust, scalable QA frameworks for modern pipelines.*
+*QA Automation Engineer*
+*Building scalable, autonomous QA pipelines for microservice ecosystems.*
+
+---
+
+### My observation/reflection
+
+API Detective demonstrates how a **QA engineer can design a full automation ecosystem**  and just test,  but harmonize scripting, CI/CD, and intelligent reporting.
+It’s the kind of framework that turns manual verification into continuous assurance.
 
 ---
