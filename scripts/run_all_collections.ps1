@@ -1,10 +1,12 @@
 $newmanPath = "newman\reports"
 $envFile = "environments\Integration-Env.postman_environment.json" 
 
+# Make sure the main reports folder exists
 if (!(Test-Path $newmanPath)) {
     New-Item -ItemType Directory -Force -Path $newmanPath | Out-Null
 }
 
+# List of Postman collections
 $collections = @(
     "collections\Auth_Service_Tests.postman_collection.json",
     "collections\Inventory Test suite.postman_collection.json",
@@ -16,6 +18,7 @@ foreach ($collection in $collections) {
     $name = [System.IO.Path]::GetFileNameWithoutExtension($collection)
     $reportPath = "$newmanPath\$name"
 
+    # Create a separate folder for each report
     if (!(Test-Path $reportPath)) {
         New-Item -ItemType Directory -Path $reportPath -Force | Out-Null
     }
@@ -27,3 +30,5 @@ foreach ($collection in $collections) {
       -r htmlextra `
       --reporter-htmlextra-export "$reportPath\$name.postman_report.html"
 }
+
+Write-Host "`n All Postman collections executed successfully." 
