@@ -26,7 +26,8 @@ jobs:
       - name: Run All Postman Collections (PowerShell)
         shell: pwsh  
         run: |
-          .scripts\run_all_collections.ps1  # ← Windows path
+            Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+            .\scripts\run_all_collections.ps1
 
       - name: Upload Newman Reports
         uses: actions/upload-artifact@v4
