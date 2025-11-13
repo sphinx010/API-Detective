@@ -1,0 +1,375 @@
+{
+	"info": {
+		"_postman_id": "ce2e98c2-20f5-4594-a218-484de4e658b9",
+		"name": "Auth-Service Tests",
+		"description": "StartFragment  \nAuthored by: [Ayooluwa Paul Obembe](https://www.linkedin.com/in/ayooluwa-obembe-898a782b0/)\n\n### **🕵️‍♂️Auth-Service Tests**\n\n**Base URL:** `https://dummyjson.com`  \n**Purpose:**\n\nSimulates authentication and credential management for users within the system. It ensures valid login workflows, authorization token retrieval, and credential update functionality.\n\n**Endpoints Covered:**\n\n| Method | Endpoint | Purpose |\n| --- | --- | --- |\n| `POST` | `/auth/login` | Validates user credentials and returns a JWT token. |\n| `GET` | `/auth/me` | Fetches the authenticated user profile using the token. |\n| `PATCH` | `/users/:id` | Updates user credentials or attributes. |\n\n**Key Tests:**\n\n- Token creation and validity checks.\n    \n- Response schema validation (status, data type, keys).\n    \n- Invalid login handling.\n    \n- Token propagation across dependent services.\n    \n\n**Data Flow:**\n\n→ Generates `auth_token` → stored as `pm.collectionVariables.set(\"token\", value)` → consumed by other collections (User, Inventory, Notify).\n\nEndFragment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32751809"
+	},
+	"item": [
+		{
+			"name": "user login ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parse response\r",
+							"const jsonData = pm.response.json();\r",
+							"const accessToken = jsonData.accessToken;\r",
+							"const refreshToken = jsonData.refreshToken;\r",
+							"const userId = jsonData.id;\r",
+							"const username = jsonData.username;\r",
+							"\r",
+							"// 1. Validate basic contract\r",
+							"pm.test(\"Status code is 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has required auth fields\", () => {\r",
+							"    pm.expect(jsonData).to.have.property(\"accessToken\");\r",
+							"    pm.expect(jsonData).to.have.property(\"refreshToken\");\r",
+							"    pm.expect(jsonData).to.have.property(\"id\");\r",
+							"    pm.expect(jsonData).to.have.property(\"username\");\r",
+							"});\r",
+							"\r",
+							"// 2. Validate token format (basic JWT check)\r",
+							"pm.test(\"Access token is a valid JWT format\", () => {\r",
+							"    const token = jsonData.accessToken;\r",
+							"    pm.expect(token).to.be.a(\"string\");\r",
+							"    pm.expect(token.split('.')).to.have.lengthOf(3); // JWT = header.payload.signature\r",
+							"});\r",
+							"\r",
+							"// 3. Save tokens and user context for next steps\r",
+							"pm.collectionVariables.set(\"accessToken\", accessToken);\r",
+							"pm.collectionVariables.set(\"refreshToken\", refreshToken);\r",
+							"pm.collectionVariables.set(\"userId\", userId);\r",
+							"pm.collectionVariables.set(\"username\", username);\r",
+							"\r",
+							"// 4. Log detective-style for CI visibility\r",
+							"console.log(`🕵️‍♂️ CASE FILE: Auth success`);\r",
+							"console.log(`User: ${jsonData.username} (ID: ${jsonData.id})`);\r",
+							"console.log(`Token issued. Ready for user-service.`);\r"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "reqres-free-v1",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"username\": \"{{username}}\",\"email\": \"{{email}}\", \"password\": \"{{password}}\" }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Auth User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/auth/me",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user credentials",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"const expectedUsername = \"nox_L19\";\r",
+							"\r",
+							"pm.test(\"Status 200 – User updated successfully\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Username was updated correctly\", () => {\r",
+							"    pm.expect(res.username).to.eql(expectedUsername);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response includes user ID\", () => {\r",
+							"    pm.expect(res.id).to.eql(1);\r",
+							"});\r",
+							"pm.test(\"User object contains all required fields and no sensitive data\", () => {\r",
+							"    // Define expected fields for our user 1\r",
+							"    const requiredKeys = [\r",
+							"        'id',\r",
+							"        'firstName',\r",
+							"        'lastName',\r",
+							"        'age',\r",
+							"        'gender',\r",
+							"        'email',\r",
+							"        'username',\r",
+							"        'birthDate',\r",
+							"        'image',\r",
+							"        'bloodGroup',\r",
+							"        'height',\r",
+							"        'weight',\r",
+							"        'eyeColor',\r",
+							"        'hair',\r",
+							"        'address',\r",
+							"        'university',\r",
+							"        'company',\r",
+							"        'ein',\r",
+							"        'ssn',\r",
+							"        'userAgent'\r",
+							"    ];\r",
+							"\r",
+							"    // Sensitive fields that should NEVER appear in responses \r",
+							"    const sensitiveKeys = ['password', 'accessToken', 'refreshToken', 'secret', 'cardNumber', 'iban'];\r",
+							"\r",
+							"    const missingKeys = [];\r",
+							"    const foundKeys = [];\r",
+							"    const flaggedKeys = [];\r",
+							"\r",
+							"    // Check each required key\r",
+							"    requiredKeys.forEach(key => {\r",
+							"        if (key in res) {\r",
+							"            foundKeys.push(key);\r",
+							"        } else {\r",
+							"            missingKeys.push(key);\r",
+							"        }\r",
+							"    });\r",
+							"\r",
+							"    // Check for accidental exposure of sensitive fields\r",
+							"    sensitiveKeys.forEach(key => {\r",
+							"        if (key in res && res[key] !== null && res[key] !== undefined && res[key] !== \"\") {\r",
+							"            flaggedKeys.push(key);\r",
+							"        }\r",
+							"    });\r",
+							"\r",
+							"    // === LOGGING ===\r",
+							"    console.log(`\\n🕵️‍♂️ CASE FILE: Validating user (ID: ${res.id || 'unknown'})`);\r",
+							"    console.log(`   Found keys:`);\r",
+							"    foundKeys.forEach(k => {\r",
+							"        const isSensitive = sensitiveKeys.includes(k);\r",
+							"        console.log(isSensitive? `     🐞 ${k} 🐞` : `     ${k}`);\r",
+							"    });\r",
+							"\r",
+							"    if (missingKeys.length > 0) {\r",
+							"        console.log(`   ❌ Missing required keys: ${missingKeys.join(', ')}`);\r",
+							"    }\r",
+							"\r",
+							"    if (flaggedKeys.length > 0) {\r",
+							"        console.log(`   ⚠️  SECURITY LEAK: Sensitive field(s) exposed: ${flaggedKeys.map(k => `🐞 ${k} 🐞`).join(', ')}`);\r",
+							"    }\r",
+							"\r",
+							"    // === ASSERTIONS ===\r",
+							"    pm.expect(missingKeys.length, \r",
+							"        `User is missing required fields: ${missingKeys.join(', ')}. See console for details.`\r",
+							"    ).to.eql(0);\r",
+							"\r",
+							"    pm.expect(flaggedKeys.length, \r",
+							"        `SECURITY VIOLATION: Sensitive data exposed in response: ${flaggedKeys.join(', ')}.`\r",
+							"    ).to.eql(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{updatedUsername}}\",\r\n    \"password\": \"{{updatedPassword}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/users/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					"/*\r",
+					"1. Define test data (static + dynamic)\r",
+					"*/\r",
+					"const email = 'emily.johnson@x.dummyjson.com';\r",
+					"const firstName = 'Emily';\r",
+					"const lastName = 'Johnson';\r",
+					"const username = 'emilys';\r",
+					"const password = 'emilyspass';\r",
+					"const job = pm.variables.replaceIn('{{$randomJobTitle}}') || 'QA Engineer';\r",
+					"const updatedUsername = 'nox_L19';\r",
+					"const updatedPassword = 'ifelse2426';\r",
+					"\r",
+					"/*\r",
+					"2. Save to collection variables for reuse across requests\r",
+					"*/\r",
+					"pm.collectionVariables.set('email', email);\r",
+					"pm.collectionVariables.set('firstName', firstName);\r",
+					"pm.collectionVariables.set('lastName', lastName);\r",
+					"pm.collectionVariables.set('username', username);\r",
+					"pm.collectionVariables.set('password', password);\r",
+					"pm.collectionVariables.set('job', job);\r",
+					"pm.collectionVariables.set('contentType', 'application/json');\r",
+					"\r",
+					"//updated fields\r",
+					"pm.collectionVariables.set('updatedUsername', updatedUsername);\r",
+					"pm.collectionVariables.set('updatedPassword', updatedPassword);\r",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "email",
+			"value": ""
+		},
+		{
+			"key": "firstName",
+			"value": ""
+		},
+		{
+			"key": "lastName",
+			"value": ""
+		},
+		{
+			"key": "job",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "contentType",
+			"value": ""
+		},
+		{
+			"key": "username",
+			"value": ""
+		},
+		{
+			"key": "refreshToken",
+			"value": ""
+		},
+		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "accessToken",
+			"value": ""
+		},
+		{
+			"key": "updatedUsername",
+			"value": ""
+		},
+		{
+			"key": "updatedPassword",
+			"value": ""
+		}
+	]
+}

@@ -1,0 +1,40 @@
+name: Run Newman API Test Suites
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  run-api-tests:
+    runs-on: windows-latest  
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Newman and HTML Extra Reporter
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      - name: Create Reports Directory
+        run: |
+          mkdir newman
+          mkdir newman\reports
+
+      - name: Run All Postman Collections (PowerShell)
+        shell: pwsh  
+        run: |
+          .\scripts\run-collections.ps1  # ← Windows path
+
+      - name: Upload Newman Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-reports
+          path: newman/reports/

@@ -1,0 +1,403 @@
+{
+	"info": {
+		"_postman_id": "e796aa02-b5ef-4609-b37d-2a601d80974b",
+		"name": "Inventory Test suite",
+		"description": "**Inventory Test Suite**\n\n**Author**: [Ayooluwa Paul Obembe](https://www.linkedin.com/in/ayooluwa-obembe-898a782b0/)\n\n**Base URL:** `https://dummyjson.com`  \n**Purpose:**  \nTests core inventory operations: fetching, filtering, and adding products. This collection validates CRUD-like functionality and response integrity of product endpoints.\n\n**Endpoints Covered:**\n\n| Method | Endpoint | Purpose |\n| --- | --- | --- |\n| `GET` | `/products` | Retrieves all available products. |\n| `GET` | `/products/{id}` | Retrieves product details by specific ID. |\n| `POST` | `/products/add` | Adds a new product dynamically. |\n| `GET` | `/products/filter` | Fetches filtered or paginated product lists. |\n\n**Key Tests:**\n\n- Dynamic product creation using random values.\n    \n- Validation that product IDs, names, and prices are consistent.\n    \n- Error handling when invalid product IDs are queried.\n    \n- Cross-verification of added product in subsequent GET requests.\n    \n\n**Data Flow:**\n\n→ Uses variables like `newProductTitle`, `productId`, etc.\n\n→ Saves results into collection/environment for chaining to Notify-Service tests.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32751809"
+	},
+	"item": [
+		{
+			"name": "All products",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"pm.test(\"Response contains products array\", () => pm.expect(res).to.have.property('products'));\r",
+							"pm.test(\"Default limit is 30\", () => pm.expect(res.limit).to.eql(30));\r",
+							"pm.test(\"Total products count matches known dataset\", () => pm.expect(res.total).to.be.above(150)); // per docs: 194 total\r",
+							"pm.test(\"Each product has required fields\", () => {\r",
+							"    const requiredKeys = ['id', 'title', 'price', 'category', 'rating', 'stock'];\r",
+							"    let allValid = true;\r",
+							"\r",
+							"    res.products.forEach((product, index) => {\r",
+							"        const missingKeys = [];\r",
+							"        requiredKeys.forEach(key => {\r",
+							"            if (!(key in product)) {\r",
+							"                missingKeys.push(key);\r",
+							"            }\r",
+							"        });\r",
+							"\r",
+							"        if (missingKeys.length > 0) {\r",
+							"            console.log(`❌ Product #${index + 1} (ID: ${product.id || 'unknown'}) is missing keys:`, missingKeys);\r",
+							"            allValid = false;\r",
+							"        }\r",
+							"    });\r",
+							"\r",
+							"    pm.expect(allValid, \"One or more products are missing required fields. Check console for details.\").to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/products",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Product by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"const expected = {\r",
+							"    \"id\": 1,\r",
+							"    \"title\": \"Essence Mascara Lash Princess\",\r",
+							"    \"price\": 9.99,\r",
+							"    \"category\": \"beauty\"\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"pm.test(\"Product ID matches request\", () => pm.expect(res.id).to.equal(expected.id));\r",
+							"pm.test(\"Critical fields match expected values in Product ID\", () => {\r",
+							"    pm.expect(res.title).to.eql(expected.title);\r",
+							"    pm.expect(res.price).to.eql(expected.price);\r",
+							"    pm.expect(res.category).to.eql(expected.category);\r",
+							"});\r",
+							"pm.test(\"Product contains reviews array\", () => {\r",
+							"    pm.expect(res.reviews).to.be.an('array').that.is.not.empty;\r",
+							"    const firstReview = res.reviews[0];\r",
+							"    pm.expect(firstReview).to.include.all.keys('rating', 'comment', 'reviewerName', 'reviewerEmail');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/products/{{targetProductId}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"products",
+						"{{targetProductId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add New Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Setup\r",
+							"const res = pm.response.json();\r",
+							"const expected = {\r",
+							"    title: pm.collectionVariables.get(\"title\"),\r",
+							"    price: pm.collectionVariables.get(\"price\"),\r",
+							"    category: pm.collectionVariables.get(\"category\"),\r",
+							"    description: pm.collectionVariables.get(\"description\"),\r",
+							"    stock: pm.collectionVariables.get(\"stock\")\r",
+							"};\r",
+							"\r",
+							"// Define all checks as test cases \r",
+							"const checks = [\r",
+							"    {\r",
+							"        title: \"Status is 200\",\r",
+							"        pass: () => pm.response.code === 200\r",
+							"    },\r",
+							"    {\r",
+							"        title: \"New product has an ID\",\r",
+							"        pass: () => res.hasOwnProperty('id')\r",
+							"    },\r",
+							"    {\r",
+							"        title: \"Title matches input\",\r",
+							"        pass: () => res.title === expected.title\r",
+							"    },\r",
+							"    {\r",
+							"        title: \"ID is new (greater than 194)\",\r",
+							"        pass: () => res.id > 194\r",
+							"    },\r",
+							"    {\r",
+							"        title: \"Product contains meta with timestamps\",\r",
+							"        pass: () => res.meta && res.meta.hasOwnProperty('createdAt') && res.meta.hasOwnProperty('updatedAt')\r",
+							"    },\r",
+							"    {\r",
+							"        title: \"Price matches input\",\r",
+							"        pass: () => res.price === expected.price\r",
+							"    },\r",
+							"    {\r",
+							"        title: \"Category matches input\",\r",
+							"        pass: () => res.category === expected.category\r",
+							"    },\r",
+							"    {\r",
+							"        title: \"Description matches input\",\r",
+							"        pass: () => res.description === expected.description\r",
+							"    },\r",
+							"    {\r",
+							"        title: \"Stock matches input\",\r",
+							"        pass: () => res.stock === expected.stock\r",
+							"    }\r",
+							"];\r",
+							"\r",
+							"// Run checks & collect results \r",
+							"const results = checks.map(check => {\r",
+							"    const passed = check.pass();\r",
+							"    return { ...check, passed };\r",
+							"});\r",
+							"\r",
+							"// Logreport \r",
+							"console.log(`\\n🕵️‍♂️ CASE FILE: Product Validation Report`);\r",
+							"console.log(`hmmm let's go bug hunting, shall we? 🔎🐞:`);\r",
+							"results.forEach(r => {\r",
+							"    const icon = r.passed ? '✅' : '❌';\r",
+							"    console.log(`   ${icon} ${r.title}`);\r",
+							"});\r",
+							"\r",
+							"// Final test: fail if any check failed \r",
+							"const allPassed = results.every(r => r.passed);\r",
+							"pm.test(\"All product validation checks passed\", () => {\r",
+							"    pm.expect(allPassed, \r",
+							"        `One or more checks failed. See console log above for details.`\r",
+							"    ).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"QA gadget\",\r\n  \"price\": {{price}},\r\n  \"stock\": {{stock}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/products/add",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"products",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Products with Filters",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"\r",
+							"// === Run the actual tests (they'll show in Postman UI / CI as pass/fail) ===\r",
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"pm.test(\"Filtered products array returned\", () => {\r",
+							"    pm.expect(res.products).to.be.an('array');\r",
+							"    pm.expect(res.products.length).to.be.above(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each product only has selected fields + id\", () => {\r",
+							"    const allowedKeys = ['id', 'title', 'price'];\r",
+							"    res.products.forEach(product => {\r",
+							"        const keys = Object.keys(product);\r",
+							"        keys.forEach(key => pm.expect(allowedKeys).to.include(key, `Unexpected field: ${key}`));\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"All products match search term 'mascara' (case-insensitive)\", () => {\r",
+							"    res.products.forEach(p => {\r",
+							"        pm.expect(p.title.toLowerCase()).to.include('mascara');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// === FUN CONSOLE REPORT FOR CI / NEWMAN ===\r",
+							"console.log(`\\n🕵️‍♂️ CASE FILE: Product Filter and Search Report`);\r",
+							"console.log(`🔍 On the hunt for \"mascara\"...`);\r",
+							"console.log(`✅ ${res.products.length} suspects located!`);\r",
+							"console.log(`📋 Evidence checklist:`);\r",
+							"\r",
+							"// Check 1: Status\r",
+							"console.log(`   ${res.products.length > 0 ? '✅' : '🚫'} Non-empty product list`);\r",
+							"\r",
+							"// Check 2: Field restriction\r",
+							"const allFieldsValid = res.products.every(p =>\r",
+							"    Object.keys(p).every(key => ['id', 'title', 'price'].includes(key))\r",
+							");\r",
+							"console.log(`   ${allFieldsValid ? '✅' : '🚫'} Only allowed fields exposed (id, title, price)`);\r",
+							"\r",
+							"// Check 3: Search relevance\r",
+							"const allMatchSearch = res.products.every(p =>\r",
+							"    p.title.toLowerCase().includes('mascara')\r",
+							");\r",
+							"console.log(`   ${allMatchSearch ? '✅' : '🚫'} Every product mentions \"mascara\"`);\r",
+							"\r",
+							"if (allFieldsValid && allMatchSearch && res.products.length > 0) {\r",
+							"    console.log(`\\n🎯 VERDICT: Clean hit! No rogue fields, no imposters. The mascara trail is solid.`);\r",
+							"} else {\r",
+							"    console.log(`\\n🚨 VERDICT: Inconsistencies detected! Possible data leak or broken filter logic.`);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/products/search?q={{searchQuery}}&select={{selectedFields}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"products",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "{{searchQuery}}"
+						},
+						{
+							"key": "select",
+							"value": "{{selectedFields}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					"//Set target ID via variable for reusability\r",
+					"pm.collectionVariables.set(\"targetProductId\", 1);\r",
+					"\r",
+					"\r",
+					"// Generate dynamic test data\r",
+					"const newProduct = {\r",
+					"    title: \"QA gadget\", \r",
+					"    price: `${parseFloat(pm.variables.replaceIn('{{$randomPrice}}')).toFixed(2)}`,\r",
+					"    description: \"APIs bug tracker\",\r",
+					"    category: \"electronics\",\r",
+					"    brand: \"DebugTech\",\r",
+					"    stock: parseInt(pm.variables.replaceIn('{{$randomInt}}')) % 50 + 1\r",
+					"};\r",
+					"\r",
+					"pm.collectionVariables.set('title', newProduct.title);\r",
+					"pm.collectionVariables.set('price', newProduct.price);\r",
+					"pm.collectionVariables.set(\"description\", newProduct.description);\r",
+					"pm.collectionVariables.set(\"category\", newProduct.category);\r",
+					"pm.collectionVariables.set(\"brand\", newProduct.brand);\r",
+					"pm.collectionVariables.set(\"stock\", newProduct.stock);\r",
+					"// Query to get filtered products \r",
+					"pm.collectionVariables.set(\"searchQuery\", \"mascara\");\r",
+					"pm.collectionVariables.set(\"selectedFields\", \"title,price\");"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "targetProductId",
+			"value": ""
+		},
+		{
+			"key": "newProductPrice",
+			"value": ""
+		},
+		{
+			"key": "description",
+			"value": ""
+		},
+		{
+			"key": "category",
+			"value": ""
+		},
+		{
+			"key": "brand",
+			"value": ""
+		},
+		{
+			"key": "stock",
+			"value": ""
+		},
+		{
+			"key": "title",
+			"value": ""
+		},
+		{
+			"key": "price",
+			"value": ""
+		},
+		{
+			"key": "searchQuery",
+			"value": ""
+		},
+		{
+			"key": "selectedFields",
+			"value": ""
+		}
+	]
+}

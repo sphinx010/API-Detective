@@ -1,0 +1,123 @@
+{
+	"info": {
+		"_postman_id": "31c6a354-31c9-47cf-be3f-06a04456dd01",
+		"name": "Notify-Service Tests",
+		"description": "### Notify-Service Tests\n\nAuthored:** [Ayooluwa Paul Obembe](https://www.linkedin.com/in/ayooluwa-obembe-898a782b0/)\n\n**Base URL:** `https://webhook.site`  \n**Purpose:**\n\nActs as the final integration check in the service chain. It validates whether user and order data successfully trigger notifications or alerts, mimicking downstream message or webhook systems.\n\n**Endpoints Covered:**\n\n| Method | Endpoint | Purpose |\n| --- | --- | --- |\n| `GET` | `/ping` | Verifies connectivity and system responsiveness. |\n| `GET` | `/verify-order` | Simulates notification delivery or webhook trigger for order confirmation. |\n\n**Key Tests:**\n\n- Mock notifications for mismatched `user_id` or failed order creation.\n    \n- Error simulation using HTTP status codes (`https://dummyjson.com/400/...`).\n    \n- Logs detailed alerts on integration failures using `pm.sendRequest()`.\n    \n- Ensures graceful handling of service downtime or bad responses.\n    \n\n**Data Flow:**\n\n→ Consumes `orderId`, `userId`, `token` from previous suites.\n\n→ Triggers mock HTTP notification or alert if inconsistency detected.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32751809"
+	},
+	"item": [
+		{
+			"name": "ping",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_notify}}",
+					"host": [
+						"{{base_notify}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "verify order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();",
+							"",
+							"// Run the test on the order",
+							"pm.test(\"Check order_confirmation status\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.expect(res.order_status).to.eql(\"success\"); // ✅ compare to string \"success\"",
+							"});",
+							"",
+							"//Detective debriefing for logging out the test based on actual response in ci",
+							"if (res.order_status === \"success\") {",
+							"    console.log(`🕵️‍♂️ CASE CLOSED: Order confirmed without a hitch!`);",
+							"    console.log(`✅ The evidence is clear: status = \"${res.order_status}\"`);",
+							"    console.log(`📦 Package is already en route to alternate dimension... (aka warehouse)`);",
+							"    console.log(`🎯 No bugs detected. Criminals remain unemployed.`);",
+							"} else {",
+							"    console.log(`🕵️‍♂️ CASE OPEN: Order confirmation failed! 🐞🐞🐞❌`);",
+							"    console.log(`   Actual status: \"${res.order_status}\"`);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_notify}}{{order_path}}",
+					"host": [
+						"{{base_notify}}{{order_path}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					"const user = pm.variables.replaceIn('{{$randomUserName}}');\r",
+					" const password = pm.variables.replaceIn('{{$randomPassword}}');\r",
+					"\r",
+					"pm.collectionVariables.set(\"user\", user);\r",
+					"pm.collectionVariables.set(\"password\", password);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "user",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "order_path",
+			"value": "/4082366a-9528-430c-8f71-3432fa45a543"
+		}
+	]
+}

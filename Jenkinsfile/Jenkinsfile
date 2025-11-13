@@ -1,0 +1,53 @@
+pipeline {
+    agent {
+        // Use a Windows agent that has PowerShell and Node.js
+        label 'windows'
+    }
+
+    environment {
+        NODE_HOME = 'C:\\Program Files\\nodejs' // Adjust if needed
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Setup Node.js') {
+            steps {
+                // Ensure Node.js is in PATH
+                bat 'node -v'
+                bat 'npm -v'
+            }
+        }
+
+        stage('Install Newman & Reporter') {
+            steps {
+                bat 'npm install -g newman newman-reporter-htmlextra'
+            }
+        }
+
+        stage('Run API Detective Tests') {
+            steps {
+                // Run your PowerShell automation script
+                powershell '.\\scripts\\run-collections.ps1'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Publish HTML reports in Jenkins UI
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'newman/reports',
+                reportFiles: '*.postman_report.html',
+                reportName: 'API Detective Test Reports'
+            ])
+        }
+    }
+}

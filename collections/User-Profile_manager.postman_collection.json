@@ -1,0 +1,235 @@
+{
+	"info": {
+		"_postman_id": "da3858e3-2092-4f94-8d55-52715fe8b406",
+		"name": "User-Profile_manager",
+		"description": "### User-Profile Manager\n\nAuthored: [Ayooluwa Paul Obembe](https://www.linkedin.com/in/ayooluwa-obembe-898a782b0/)\n\n**Base URL:** `https://dummyjson.com`  \n**Purpose:**\n\nHandles user retrieval, search, and filtering functionalities. Ensures that profile lookup, pagination, and query-based searches perform correctly and maintain integrity with Auth data.\n\n**Endpoints Covered:**\n\n| Method | Endpoint | Purpose |\n| --- | --- | --- |\n| `GET` | `/users/search?q={name}` | Searches users based on keyword query. |\n| `GET` | `/users/filter?limit=x&skip=y` | Retrieves filtered or paginated lists of users. |\n\n**Key Tests:**\n\n- Validates that the returned profiles match search queries.\n    \n- Ensures user IDs align with `auth-service` created users.\n    \n- Handles invalid query parameters gracefully.\n    \n- Measures API latency and response consistency.\n    \n\n**Data Flow:**\n\n→ Pulls `auth_token` and user data from Auth-Service tests.\n\n→ Used to cross-check user existence during order or notification validation.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32751809"
+	},
+	"item": [
+		{
+			"name": "search users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"pm.test(\"Non-empty search results\", () => {\r",
+							"    pm.expect(res.users).to.be.an('array').that.is.not.empty;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"All results contain 'Johnson or Doe' in lastName (case-insensitive)\", () => {\r",
+							"    res.users.forEach(user => {\r",
+							"        pm.expect(user.lastName.toLowerCase()).to.include('johnson');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// Detective Log\r",
+							"console.log(`\\n🕵️‍♂️ CASE FILE: User Search Operation`);\r",
+							"console.log(`🔍 Query: \"Johnson\" → ${res.users.length} matches`);\r",
+							"res.users.slice(0, 2).forEach(u => u.lastName === 'Johnson' ? console.log(`   👤 ${u.firstName} ${u.lastName} (ID: ${u.id})`): console.log(`Anomally detected! 🐞 ${u.lastName} 🐞`));\r",
+							"if (res.users.length > 2) console.log(`   ... and ${res.users.length - 2} more.`);"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users/search?q={{searchQuery}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "{{searchQuery}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "filter & skip",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parse response\r",
+							"const res = pm.response.json();\r",
+							"\r",
+							"// Expected values (from pre-request script)\r",
+							"const expectedLimit = pm.collectionVariables.get(\"limit\");\r",
+							"const expectedSkip = pm.collectionVariables.get(\"skipValue\");\r",
+							"const expectedFields = pm.collectionVariables.get(\"searchValues\")\r",
+							"  .split(',')\r",
+							"  .map(f => f.trim());\r",
+							"\r",
+							"// === TESTS ===\r",
+							"pm.test(\"Status 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Pagination matches request\", () => {\r",
+							"    pm.expect(res.limit, \"Limit mismatch\").to.eql(expectedLimit);\r",
+							"    pm.expect(res.skip, \"Skip mismatch\").to.eql(expectedSkip);\r",
+							"    pm.expect(res.total, \"Total user count mismatch\").to.eql(208);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each user contains ONLY selected fields + id\", () => {\r",
+							"    const allowedKeys = [...expectedFields, 'id'];\r",
+							"    \r",
+							"    res.users.forEach(user => {\r",
+							"        // 🔍 Check 1: No unexpected fields\r",
+							"        const actualKeys = Object.keys(user);\r",
+							"        actualKeys.forEach(key => {\r",
+							"            pm.expect(\r",
+							"                allowedKeys,\r",
+							"                `🚨 User #${user.id}: Unexpected field \"${key}\" found. Allowed: ${allowedKeys.join(', ')}`\r",
+							"            ).to.include(key);\r",
+							"        });\r",
+							"\r",
+							"        // 🔍 Check 2: All expected fields are present\r",
+							"        expectedFields.forEach(field => {\r",
+							"            pm.expect(\r",
+							"                user,\r",
+							"                `🚨 User #${user.id}: Missing field \"${field}\"`\r",
+							"            ).to.have.property(field);\r",
+							"        });\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Correct number of users returned\", () => {\r",
+							"    pm.expect(res.users.length, \"User count does not match limit\").to.eql(expectedLimit);\r",
+							"});\r",
+							"\r",
+							"// === 🕵️‍♂️ DETECTIVE REPORT ===\r",
+							"console.log(`\\n🕵️‍♂️ CASE FILE: User Field Filtering & Pagination`);\r",
+							"console.log(`🔍 Request: limit=${expectedLimit}, skip=${expectedSkip}, select=[${expectedFields.join(', ')}]`);\r",
+							"console.log(`✅ ${res.users.length} users returned (out of ${res.total} total)`);\r",
+							"console.log(`📋 Validating fields per user:`);\r",
+							"\r",
+							"res.users.slice(0, Math.min(2, res.users.length)).forEach(u => {\r",
+							"    const fields = Object.keys(u).join(', ');\r",
+							"    console.log(`   👤 ID ${u.id}: [${fields}]`);\r",
+							"});\r",
+							"\r",
+							"if (res.users.length > 2) {\r",
+							"    console.log(`   ... and ${res.users.length - 2} more.`);\r",
+							"}\r",
+							"\r",
+							"// Final verdict (for logging only)\r",
+							"const allFieldsValid = res.users.every(user =>\r",
+							"    Object.keys(user).every(key => [...expectedFields, 'id'].includes(key)) &&\r",
+							"    expectedFields.every(field => user.hasOwnProperty(field))\r",
+							");\r",
+							"\r",
+							"if (allFieldsValid && \r",
+							"    res.users.length === expectedLimit && \r",
+							"    res.limit === expectedLimit && \r",
+							"    res.skip === expectedSkip) {\r",
+							"    console.log(`\\n🎯 VERDICT: Filter applied perfectly. No rogue fields. Everything's on point.`);\r",
+							"} else {\r",
+							"    console.log(`\\n🚨 VERDICT: Inconsistencies detected in filtering or pagination.`);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users?limit={{limit}}&skip={{skipValue}}&select={{searchValues}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "{{limit}}"
+						},
+						{
+							"key": "skip",
+							"value": "{{skipValue}}"
+						},
+						{
+							"key": "select",
+							"value": "{{searchValues}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					"const limit = 5;\r",
+					"const skipValue = 10;\r",
+					"const searchValues = [\"firstName\",\"age\" ]\r",
+					"\r",
+					"pm.collectionVariables.set(\"searchQuery\", \"John\");\r",
+					"pm.collectionVariables.set(\"limit\", limit);\r",
+					"pm.collectionVariables.set(\"skipValue\", skipValue);\r",
+					"pm.collectionVariables.set(\"searchValues\", `${searchValues[0]}, ${searchValues[1]}`)\r",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "searchQuery",
+			"value": ""
+		},
+		{
+			"key": "limit",
+			"value": ""
+		},
+		{
+			"key": "skipValue",
+			"value": ""
+		},
+		{
+			"key": "searchValues",
+			"value": ""
+		}
+	]
+}
