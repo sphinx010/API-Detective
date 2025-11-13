@@ -1,6 +1,11 @@
 $newmanPath = "newman\reports"
 $envFile = "environments\Integration-Env.postman_environment.json" 
 
+# Ensure reports directory exists
+if (!(Test-Path $newmanPath)) {
+    New-Item -ItemType Directory -Force -Path $newmanPath | Out-Null
+}
+
 # List of all collection files
 $collections = @(
     "collections\Auth_Service_Tests.postman_collection.json",
@@ -18,4 +23,3 @@ foreach ($collection in $collections) {
       -r htmlextra `
       --reporter-htmlextra-export "$newmanPath\$name.postman_report.html"
 }
-
