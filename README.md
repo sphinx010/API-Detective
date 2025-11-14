@@ -9,7 +9,7 @@
 ## 🚀 What It Does
 
 * Runs complete **API test suites** across multiple services automatically.
-* Generates rich, **HTML reports** here on github, that visualize request/response flows and failures at the end of each run.
+* Generates rich, **HTML reports** as artifacts, that visualize request/response flows and failures at the end of each run.
 * Integrates directly with **GitHub Actions** and **Jenkins** for continuous QA feedback.
 * Uses **PowerShell automation** to manage multi-collection execution with clean logging.
 * Centralized environment configs for staging, integration, and production.
