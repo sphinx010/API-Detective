@@ -50,7 +50,7 @@ It also provides a robust regression safety net, ensuring service contracts rema
    ```
    newman/reports/
    ```
-
+   or get them in a zip file after each run.. 
 ---
 
 ## 🧩 Project Overview
