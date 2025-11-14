@@ -9,7 +9,7 @@
 ## 🚀 What It Does
 
 * Runs complete **API test suites** across multiple services automatically.
-* Generates rich, **HTML reports** that visualize request/response flows and failures.
+* Generates rich, **HTML reports** here on github, that visualize request/response flows and failures at the end of each run.
 * Integrates directly with **GitHub Actions** and **Jenkins** for continuous QA feedback.
 * Uses **PowerShell automation** to manage multi-collection execution with clean logging.
 * Centralized environment configs for staging, integration, and production.
@@ -50,7 +50,7 @@ It also provides a robust regression safety net, ensuring service contracts rema
    ```
    newman/reports/
    ```
-   or get them in a zip file after each run.. 
+   or download the results as a zip-file at the end of the workflow's run.. 
 ---
 
 ## 🧩 Project Overview
