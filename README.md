@@ -1,6 +1,7 @@
 
 ---
-# 🕵️‍♂️ API Detective: Auto[![Run Newman API Test Suites](https://github.com/sphinx010/API-Detective/actions/workflows/api-tests.yml/badge.svg)](https://github.com/sphinx010/API-Detective/actions/workflows/api-tests.yml)mated Microservice QA Framework
+# 🕵️‍♂️ API Detective: Automated Microservice QA Framework
+[![Run Newman API Test Suites](https://github.com/sphinx010/API-Detective/actions/workflows/api-tests.yml/badge.svg)](https://github.com/sphinx010/API-Detective/actions/workflows/api-tests.yml)
 
 **API Detective** creates keen observability in microservice communication, delivering an environment agnostic manner to intelligently observe, test and monitor micro service integration, with instant visibility into failures—perfect for keeping service contracts rock‑solid during every deployment. runs seamlessly in CI/CD pipelines via GitHub Actions or Jenkins; producing dynamic detective-style HTML reports for every test run.
 
