@@ -68,6 +68,16 @@ API-Detective/
 └── README.md
 ```
 
+<p align="center">
+  <img src="https://img.shields.io/badge/status-active-success?style=for-the-badge" />
+  <img src="https://img.shields.io/github/actions/workflow/status/sphinx010/API-Detective/api-tests.yml?style=for-the-badge&label=CI%20Status" />
+  <img src="https://img.shields.io/badge/Postman-Newman-orange?style=for-the-badge&logo=postman" />
+  <img src="https://img.shields.io/badge/PowerShell-Automation-blue?style=for-the-badge&logo=powershell" />
+  <img src="https://img.shields.io/badge/HTML-Reports-red?style=for-the-badge&logo=html5" />
+  <img src="https://img.shields.io/badge/Jenkins-Ready-red?style=for-the-badge&logo=jenkins" />
+  <img src="https://img.shields.io/badge/GitHub%20Actions-CI/CD-black?style=for-the-badge&logo=githubactions" />
+</p>
+
 ---
 
 ## 🧾 CI/CD Pipeline
@@ -90,6 +100,16 @@ Ready-to-deploy pipeline script for scheduled or triggered test runs with post-b
 | **newman-reporter-htmlextra** | Visual, rich HTML reporting              |
 | **GitHub Actions / Jenkins**  | Continuous integration and execution  |
 
+
+<p align="center">
+  <img src="https://img.shields.io/badge/API_Testing-Postman-orange?style=for-the-badge&logo=postman" />
+  <img src="https://img.shields.io/badge/Automation-Newman-yellow?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Reporting-htmlextra-pink?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Scripting-PowerShell-blue?style=for-the-badge&logo=powershell" />
+  <img src="https://img.shields.io/badge/CI/CD-GitHub_Actions-black?style=for-the-badge&logo=githubactions" />
+  <img src="https://img.shields.io/badge/CI/CD-Jenkins-red?style=for-the-badge&logo=jenkins" />
+</p>
+
 ---
 
 ## 👤 Author
@@ -105,12 +125,4 @@ Ready-to-deploy pipeline script for scheduled or triggered test runs with post-b
 API Detective demonstrates how a **QA engineer can design a full automation ecosystem**  and not just test, but harmonize scripting, CI/CD, and intelligent reporting.
 It’s the kind of framework that turns manual verification into continuous assurance.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/API_Testing-Postman-orange?style=for-the-badge&logo=postman" />
-  <img src="https://img.shields.io/badge/Automation-Newman-yellow?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Reporting-htmlextra-pink?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Scripting-PowerShell-blue?style=for-the-badge&logo=powershell" />
-  <img src="https://img.shields.io/badge/CI/CD-GitHub_Actions-black?style=for-the-badge&logo=githubactions" />
-  <img src="https://img.shields.io/badge/CI/CD-Jenkins-red?style=for-the-badge&logo=jenkins" />
-</p>
 ---
