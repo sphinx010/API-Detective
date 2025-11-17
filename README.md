@@ -105,4 +105,12 @@ Ready-to-deploy pipeline script for scheduled or triggered test runs with post-b
 API Detective demonstrates how a **QA engineer can design a full automation ecosystem**  and not just test, but harmonize scripting, CI/CD, and intelligent reporting.
 It’s the kind of framework that turns manual verification into continuous assurance.
 
+<p align="center">
+  <img src="https://img.shields.io/badge/API_Testing-Postman-orange?style=for-the-badge&logo=postman" />
+  <img src="https://img.shields.io/badge/Automation-Newman-yellow?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Reporting-htmlextra-pink?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Scripting-PowerShell-blue?style=for-the-badge&logo=powershell" />
+  <img src="https://img.shields.io/badge/CI/CD-GitHub_Actions-black?style=for-the-badge&logo=githubactions" />
+  <img src="https://img.shields.io/badge/CI/CD-Jenkins-red?style=for-the-badge&logo=jenkins" />
+</p>
 ---
