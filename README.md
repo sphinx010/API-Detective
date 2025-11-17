@@ -100,16 +100,6 @@ Ready-to-deploy pipeline script for scheduled or triggered test runs with post-b
 | **newman-reporter-htmlextra** | Visual, rich HTML reporting              |
 | **GitHub Actions / Jenkins**  | Continuous integration and execution  |
 
-
-<p align="center">
-  <img src="https://img.shields.io/badge/API_Testing-Postman-orange?style=for-the-badge&logo=postman" />
-  <img src="https://img.shields.io/badge/Automation-Newman-yellow?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Reporting-htmlextra-pink?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Scripting-PowerShell-blue?style=for-the-badge&logo=powershell" />
-  <img src="https://img.shields.io/badge/CI/CD-GitHub_Actions-black?style=for-the-badge&logo=githubactions" />
-  <img src="https://img.shields.io/badge/CI/CD-Jenkins-red?style=for-the-badge&logo=jenkins" />
-</p>
-
 ---
 
 ## 👤 Author
